@@ -1,4 +1,4 @@
-﻿@page
+﻿@page "{page?}"
 @model WebApplication1.Pages.RssModel
 @{
     ViewData["Title"] = "RSS";
@@ -11,70 +11,50 @@
     <title>RSS</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
-        .carousel-control-prev-icon,
-        .carousel-control-next-icon {
-            background-color: #000;
-        }
-
-        .carousel-indicators {
-            bottom: -40px;
-        }
-
-            .carousel-indicators li {
-                background-color: #000; 
-            }
-
-            .carousel-indicators .active {
-                background-color: #fff; 
-            }
-
-        .carousel-caption {
-            background-color: rgba(0, 0, 0, 0.6);
-            color: #fff;
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            padding: 10px;
-        }
-
-        .carousel-control-prev {
-            margin-left: -100px;
-        }
-
-        .carousel-control-next {
-            margin-right: -100px;
-        }
+      
     </style>
 </head>
 <body>
-    <div id="carouselExampleIndicators" class="carousel slide" data-ride="false">
-        <div class="carousel-inner">
-            @for (int i = 0; i < Model.RssList.Count; i++)
-            {
-                <div class="carousel-item @(i == 0 ? "active" : "")">
-                  
-                    <h3>@Model.RssList[i].PubDate</h3>
-                    <p>@Html.Raw(@Model.RssList[i].Description)</p>
-                 
-                    <a class="btn btn-primary" href="@Model.RssList[i].Link" target="_blank">Go to Link</a>
+
+    @foreach (var rss in Model.RssList)
+    {
+        @foreach (var item in rss.Items)
+        {
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h4>@item.PublishDate</h4>
                 </div>
-            }
-        </div>
-        <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="sr-only">Previous</span>
-        </a>
-        <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="sr-only">Next</span>
-        </a>
-        <ol class="carousel-indicators">
-            @for (int i = 0; i < Model.RssList.Count; i++)
-            {
-                <li data-target="#carouselExampleIndicators" data-slide-to="@i" class="@(i == 0 ? "active" : "")"></li>
-            }
-        </ol>
+                <div class="card-body">
+                    @Html.Raw(item.Description)
+                    <br>
+                    <a href="@item.Link" class="btn btn-primary mt-2">Read more</a>
+                </div>
+            </div>
+        }
+    }
+    <div class="container" style="padding-bottom: 50px;">
+        @if (Model.TotalItemCount > Model.PageSize)
+        {
+            <nav>
+                <ul class="pagination">
+                    @if (Model.PageNumber > 1)
+                    {
+                        <li class="page-item"><a class="page-link" href="/Rss?page=@(Model.PageNumber - 1)">Previous</a></li>
+                    }
+                    @for (int i = 1; i <= Math.Ceiling((double)Model.TotalItemCount / Model.PageSize); i++)
+                    {
+                        <li class="page-item @(Model.PageNumber == i ? "active" : "")">
+                            <a class="page-link" href="/Rss?page=@i">@i</a>
+                        </li>
+                    }
+
+                    @if (Model.PageNumber < Math.Ceiling((double)Model.TotalItemCount / Model.PageSize))
+                    {
+                        <li class="page-item"><a class="page-link" href="/Rss?page=@(Model.PageNumber + 1)">Next</a></li>
+                    }
+                </ul>
+            </nav>
+        }
     </div>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
